@@ -1,0 +1,43 @@
+.menu-container {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 10px;
+}
+
+.hamburger {
+  width: 30px;
+  cursor: pointer;
+}
+
+.hamburger div {
+  height: 4px;
+  background-color: black;
+  margin: 6px 0;
+  border-radius: 2px;
+}
+
+.dropdown {
+  position: absolute;
+  top: 40px;
+  left: 10px;
+  background-color: white;
+  border: 1px solid #ccc;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  z-index: 100;
+  width: 200px;
+  height: auto;
+}
+
+.dropdown a {
+  display: block;
+  padding: 5px 10px;
+  text-decoration: none;
+  color: black;
+  text-align: left;
+}
+
+.dropdown a:hover {
+  background-color: #eee;
+}
