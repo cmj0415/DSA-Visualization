@@ -1,13 +1,18 @@
 import { useState } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
 import Menu from "./components/Menu";
+import Home from "./pages/Home";
+import SegTree from "./pages/SegTree";
 
 export default function App() {
   return (
-    <div>
+    <BrowserRouter>
       <Menu></Menu>
-      <h1>Welcome to DSA Visualizer</h1>
-      <p>Choose a DSA from the menu</p>
-    </div>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/segtree" element={<SegTree />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
