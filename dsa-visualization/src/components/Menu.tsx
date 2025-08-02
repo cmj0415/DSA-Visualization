@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import "./Menu.css";
 
 export default function Menu() {
@@ -14,7 +15,9 @@ export default function Menu() {
 
       {isOpen && (
         <div className="dropdown">
-          <a href="#">Segment Tree</a>
+          <Link to="/segtree" onClick={() => setIsOpen(false)}>
+            Segment Tree
+          </Link>
         </div>
       )}
     </div>
