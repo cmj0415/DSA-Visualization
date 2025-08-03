@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { AiOutlineMenuFold, AiOutlineMenuUnfold } from "react-icons/ai";
 import "./Menu.css";
 
 export default function Menu() {
@@ -7,11 +8,13 @@ export default function Menu() {
 
   return (
     <div className="menu-container">
-      <div className="hamburger" onClick={() => setIsOpen(!isOpen)}>
-        <div />
-        <div />
-        <div />
-      </div>
+      <button className="menu-icon-button" onClick={() => setIsOpen(!isOpen)}>
+        {isOpen ? (
+          <AiOutlineMenuUnfold size={32} />
+        ) : (
+          <AiOutlineMenuFold size={32} />
+        )}
+      </button>
 
       {isOpen && (
         <div className="dropdown">

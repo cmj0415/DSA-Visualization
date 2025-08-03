@@ -5,16 +5,16 @@
   padding: 10px;
 }
 
-.hamburger {
-  width: 30px;
+.menu-icon-button {
+  background: none;
+  border: none;
   cursor: pointer;
+  color: white;
+  padding: 8px;
 }
 
-.hamburger div {
-  height: 4px;
-  background-color: white;
-  margin: 6px 0;
-  border-radius: 2px;
+.menu-icon-button:hover {
+  background-color: #0056b3;
 }
 
 .dropdown {
