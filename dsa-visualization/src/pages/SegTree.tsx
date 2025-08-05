@@ -1,6 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import { Tree, type RawNodeDatum } from "react-d3-tree";
-import "./SegTree.css";
 import Button from "../components/Button";
 import SegmentTree from "../components/SegmentTree";
 
@@ -13,10 +11,15 @@ export default function SegTree() {
         <h1 style={{ margin: 0 }}>Segment Tree Visualization</h1>
       </div>
       <SegmentTree />
-      <div>
-        <Button text="Update" onClickCallback={() => setMode(1)} />
-        <Button text="Query" onClickCallback={() => setMode(2)} />
-      </div>
+
+      {mode === 0 ? (
+        <div>
+          <Button text="Update" onClickCallback={() => setMode(1)} />
+          <Button text="Query" onClickCallback={() => setMode(2)} />
+        </div>
+      ) : (
+        <Button text="Back" onClickCallback={() => setMode(0)} />
+      )}
     </div>
   );
 }

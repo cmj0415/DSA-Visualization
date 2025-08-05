@@ -7,7 +7,7 @@ type ButtonProps = {
 
 export default function Button(props: ButtonProps) {
   return (
-    <button className="button" onClick={() => props.onClickCallback}>
+    <button className="button" onClick={() => props.onClickCallback()}>
       {props.text}
     </button>
   );
