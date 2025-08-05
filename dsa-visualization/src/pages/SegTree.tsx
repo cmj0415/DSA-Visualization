@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import Button from "../components/Button";
 import SegmentTree from "../components/SegmentTree";
+import SegUpdate from "../components/SegUpdate";
+import SegQuery from "../components/SegQuery";
 
 export default function SegTree() {
   const [mode, setMode] = useState(0);
@@ -12,13 +14,23 @@ export default function SegTree() {
       </div>
       <SegmentTree />
 
-      {mode === 0 ? (
+      {mode === 0 && (
         <div>
           <Button text="Update" onClickCallback={() => setMode(1)} />
           <Button text="Query" onClickCallback={() => setMode(2)} />
         </div>
-      ) : (
-        <Button text="Back" onClickCallback={() => setMode(0)} />
+      )}
+      {mode === 1 && (
+        <div>
+          <SegUpdate />
+          <Button text="Back" onClickCallback={() => setMode(0)} />
+        </div>
+      )}
+      {mode === 2 && (
+        <div>
+          <SegQuery />
+          <Button text="Back" onClickCallback={() => setMode(0)} />
+        </div>
       )}
     </div>
   );

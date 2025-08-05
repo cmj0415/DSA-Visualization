@@ -76,7 +76,7 @@ export default function SegmentTree() {
   }, []);
 
   return (
-    <div ref={containerRef} style={{ width: "100%", height: "80vh" }}>
+    <div ref={containerRef} style={{ width: "100%", height: "60vh" }}>
       <Tree
         data={treeData}
         orientation="vertical"
