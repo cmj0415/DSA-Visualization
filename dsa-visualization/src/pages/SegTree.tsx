@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Tree, type RawNodeDatum } from "react-d3-tree";
+import "./SegTree.css";
 
 type SegNode = {
   value: number;
@@ -64,10 +65,31 @@ const nodes = segToNode(seg, 1);
 const treeData = [nodeToTree(nodes)!];
 
 export default function SegTree() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [translate, setTranslate] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (container) {
+      const { width, height } = container.getBoundingClientRect();
+      setTranslate({ x: width / 2, y: 50 });
+    }
+  }, []);
+
   return (
-    <div>
-      <h1>Segment Tree Visualization</h1>
-      <Tree data={treeData} orientation="vertical"></Tree>
+    <div style={{ width: "100%", height: "100vh" }}>
+      <div style={{ padding: "20px" }}>
+        <h1 style={{ margin: 0 }}>Segment Tree Visualization</h1>
+      </div>
+
+      <div ref={containerRef} style={{ width: "100%", height: "80vh" }}>
+        <Tree
+          data={treeData}
+          orientation="vertical"
+          draggable={false}
+          translate={translate}
+        />
+      </div>
     </div>
   );
 }
