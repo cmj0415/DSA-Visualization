@@ -36,13 +36,22 @@ function segToNode(seg: number[], idx: number): SegNode | undefined {
   };
 }
 
-function nodeToTree(nodes: SegNode | undefined): RawNodeDatum | undefined {
+function nodeToTree(
+  nodes: SegNode | undefined,
+  l: number,
+  r: number
+): RawNodeDatum | undefined {
   if (!nodes) return undefined;
+  const mid = Math.floor((l + r) / 2);
   return {
     name: nodes.value.toString(),
-    children: [nodeToTree(nodes.left), nodeToTree(nodes.right)].filter(
-      (child): child is RawNodeDatum => child !== undefined
-    ),
+    attributes: {
+      range: `[${l}..${r}]`,
+    },
+    children: [
+      nodeToTree(nodes.left, l, mid),
+      nodeToTree(nodes.right, mid + 1, r),
+    ].filter((child): child is RawNodeDatum => child !== undefined),
   };
 }
 
@@ -61,7 +70,7 @@ function printNode(nodes: SegNode | undefined, idx: number) {
 
 arrToSeg(arr, seg, 1, arr.length - 1, 1);
 const nodes = segToNode(seg, 1);
-const treeData = [nodeToTree(nodes)!];
+const treeData = [nodeToTree(nodes, 1, arr.length - 1)!];
 
 export default function SegmentTree() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -97,6 +106,20 @@ export default function SegmentTree() {
               fontWeight="normal"
             >
               {nodeDatum.name}
+            </text>
+
+            <text
+              x={30}
+              y={0}
+              textAnchor="start"
+              alignmentBaseline="middle"
+              fill="white"
+              fontFamily="sans-serif"
+              fontSize="16"
+              fontWeight="bold"
+              strokeWidth="1"
+            >
+              {nodeDatum.attributes?.range}
             </text>
           </g>
         )}
