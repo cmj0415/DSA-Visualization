@@ -88,6 +88,24 @@ export default function SegTree() {
           orientation="vertical"
           draggable={false}
           translate={translate}
+          pathFunc="straight"
+          rootNodeClassName="node__root"
+          branchNodeClassName="node__branch"
+          leafNodeClassName="node__leaf"
+          renderCustomNodeElement={({ nodeDatum }) => (
+            <g>
+              <circle r={20} fill="#00ffffff" />
+              <text
+                textAnchor="middle"
+                alignmentBaseline="middle"
+                fill="black"
+                fontSize="14"
+                fontWeight="normal"
+              >
+                {nodeDatum.name}
+              </text>
+            </g>
+          )}
         />
       </div>
     </div>
