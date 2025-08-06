@@ -6,20 +6,20 @@ type Props = {
 };
 
 export default function SegQuery({ arrLen }: Props) {
-  const [fromInput, setFromInput] = useState(0);
-  const [toInput, setToInput] = useState(0);
+  const [fromInput, setFromInput] = useState("");
+  const [toInput, setToInput] = useState("");
   const [from, setFrom] = useState(1);
   const [to, setTo] = useState(1);
 
   const handleFromChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setFromInput(parseInt(event.target.value));
+    setFromInput(event.target.value);
   };
   const handleToChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setToInput(parseInt(event.target.value));
+    setToInput(event.target.value);
   };
   const handleConfirm = () => {
-    setFrom(fromInput);
-    setTo(toInput);
+    setFrom(parseInt(fromInput));
+    setTo(parseInt(toInput));
   };
 
   useEffect(() => {
