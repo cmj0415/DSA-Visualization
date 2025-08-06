@@ -6,13 +6,14 @@ import SegQuery from "../components/SegQuery";
 
 export default function SegTree() {
   const [mode, setMode] = useState(0);
+  const [arrLen, setArrLen] = useState(4);
 
   return (
     <div style={{ width: "100%", height: "100vh" }}>
       <div style={{ padding: "20px" }}>
         <h1 style={{ margin: 0 }}>Segment Tree Visualization</h1>
       </div>
-      <SegmentTree />
+      <SegmentTree onUpdate={setArrLen} />
 
       {mode === 0 && (
         <div>
@@ -28,7 +29,7 @@ export default function SegTree() {
       )}
       {mode === 2 && (
         <div>
-          <SegQuery />
+          <SegQuery arrLen={arrLen} />
           <Button text="Back" onClickCallback={() => setMode(0)} />
         </div>
       )}

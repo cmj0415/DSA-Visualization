@@ -1,6 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { Tree, type RawNodeDatum } from "react-d3-tree";
 
+type Props = {
+  onUpdate: (val: number) => void;
+};
+
 type SegNode = {
   value: number;
   left?: SegNode;
@@ -72,7 +76,7 @@ arrToSeg(arr, seg, 1, arr.length - 1, 1);
 const nodes = segToNode(seg, 1);
 const treeData = [nodeToTree(nodes, 1, arr.length - 1)!];
 
-export default function SegmentTree() {
+export default function SegmentTree({ onUpdate }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [translate, setTranslate] = useState({ x: 0, y: 0 });
 

@@ -1,11 +1,15 @@
-import { useState, useRef } from "react";
+import { useState, useEffect } from "react";
 import Button from "./Button";
 
-export default function SegQuery() {
+type Props = {
+  arrLen: number;
+};
+
+export default function SegQuery({ arrLen }: Props) {
   const [fromInput, setFromInput] = useState(0);
   const [toInput, setToInput] = useState(0);
-  const [from, setFrom] = useState(0);
-  const [to, setTo] = useState(0);
+  const [from, setFrom] = useState(1);
+  const [to, setTo] = useState(1);
 
   const handleFromChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFromInput(parseInt(event.target.value));
@@ -17,6 +21,14 @@ export default function SegQuery() {
     setFrom(fromInput);
     setTo(toInput);
   };
+
+  useEffect(() => {
+    if (from < 1 || from >= arrLen || to < 1 || to >= arrLen) {
+      alert("Out of range!");
+    } else if (from > to) {
+      alert("Starting index must be equal to or smaller than ending index");
+    }
+  }, [from, to]);
 
   return (
     <div>
