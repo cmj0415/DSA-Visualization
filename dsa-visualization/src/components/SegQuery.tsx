@@ -3,13 +3,12 @@ import Button from "./Button";
 
 type Props = {
   arrLen: number;
+  onTrigger: () => void;
 };
 
-export default function SegQuery({ arrLen }: Props) {
+export default function SegQuery({ arrLen, onTrigger }: Props) {
   const [fromInput, setFromInput] = useState("");
   const [toInput, setToInput] = useState("");
-  const [from, setFrom] = useState(1);
-  const [to, setTo] = useState(1);
 
   const handleFromChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFromInput(event.target.value);
@@ -18,17 +17,17 @@ export default function SegQuery({ arrLen }: Props) {
     setToInput(event.target.value);
   };
   const handleConfirm = () => {
-    setFrom(parseInt(fromInput));
-    setTo(parseInt(toInput));
-  };
+    const from = parseInt(fromInput);
+    const to = parseInt(toInput);
 
-  useEffect(() => {
-    if (from < 1 || from >= arrLen || to < 1 || to >= arrLen) {
+    if (from < 1 || from > arrLen || to < 1 || to > arrLen) {
       alert("Out of range!");
     } else if (from > to) {
       alert("Starting index must be equal to or smaller than ending index");
+    } else {
+      onTrigger();
     }
-  }, [from, to]);
+  };
 
   return (
     <div>

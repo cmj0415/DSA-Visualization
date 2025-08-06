@@ -1,4 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
 import { Tree, type RawNodeDatum } from "react-d3-tree";
 
 type Props = {
@@ -76,58 +82,72 @@ arrToSeg(arr, seg, 1, arr.length - 1, 1);
 const nodes = segToNode(seg, 1);
 const treeData = [nodeToTree(nodes, 1, arr.length - 1)!];
 
-export default function SegmentTree({ onUpdate }: Props) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [translate, setTranslate] = useState({ x: 0, y: 0 });
+export type HandleAnimation = {
+  query: () => void;
+};
 
-  useEffect(() => {
-    const container = containerRef.current;
-    if (container) {
-      const { width, height } = container.getBoundingClientRect();
-      setTranslate({ x: width / 2, y: 50 });
-    }
-  }, []);
+const SegmentTree = forwardRef<HandleAnimation, Props>(
+  ({ onUpdate }: Props, ref) => {
+    useImperativeHandle(ref, () => ({
+      query: () => {
+        alert("querying");
+      },
+    }));
 
-  return (
-    <div ref={containerRef} style={{ width: "100%", height: "60vh" }}>
-      <Tree
-        data={treeData}
-        orientation="vertical"
-        draggable={false}
-        translate={translate}
-        pathFunc="straight"
-        rootNodeClassName="node__root"
-        branchNodeClassName="node__branch"
-        leafNodeClassName="node__leaf"
-        renderCustomNodeElement={({ nodeDatum }) => (
-          <g>
-            <circle r={20} fill="#00ffffff" />
-            <text
-              textAnchor="middle"
-              alignmentBaseline="middle"
-              fill="black"
-              fontSize="14"
-              fontWeight="normal"
-            >
-              {nodeDatum.name}
-            </text>
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [translate, setTranslate] = useState({ x: 0, y: 0 });
 
-            <text
-              x={30}
-              y={0}
-              textAnchor="start"
-              alignmentBaseline="middle"
-              fill="white"
-              fontFamily="sans-serif"
-              fontSize="16"
-              fontWeight="bold"
-              strokeWidth="1"
-            >
-              {nodeDatum.attributes?.range}
-            </text>
-          </g>
-        )}
-      />
-    </div>
-  );
-}
+    useEffect(() => {
+      const container = containerRef.current;
+      if (container) {
+        const { width, height } = container.getBoundingClientRect();
+        setTranslate({ x: width / 2, y: 50 });
+      }
+    }, []);
+
+    return (
+      <div ref={containerRef} style={{ width: "100%", height: "60vh" }}>
+        <Tree
+          data={treeData}
+          orientation="vertical"
+          draggable={false}
+          translate={translate}
+          pathFunc="straight"
+          rootNodeClassName="node__root"
+          branchNodeClassName="node__branch"
+          leafNodeClassName="node__leaf"
+          renderCustomNodeElement={({ nodeDatum }) => (
+            <g>
+              <circle r={20} fill="#00ffffff" />
+              <text
+                textAnchor="middle"
+                alignmentBaseline="middle"
+                fill="black"
+                fontSize="14"
+                fontWeight="normal"
+              >
+                {nodeDatum.name}
+              </text>
+
+              <text
+                x={30}
+                y={0}
+                textAnchor="start"
+                alignmentBaseline="middle"
+                fill="white"
+                fontFamily="sans-serif"
+                fontSize="16"
+                fontWeight="bold"
+                strokeWidth="1"
+              >
+                {nodeDatum.attributes?.range}
+              </text>
+            </g>
+          )}
+        />
+      </div>
+    );
+  }
+);
+
+export default SegmentTree;
