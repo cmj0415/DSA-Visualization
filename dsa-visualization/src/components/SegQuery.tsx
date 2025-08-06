@@ -3,7 +3,13 @@ import Button from "./Button";
 
 type Props = {
   arrLen: number;
-  onTrigger: () => void;
+  onTrigger: (
+    l: number,
+    r: number,
+    start: number,
+    end: number,
+    idx: number
+  ) => void;
 };
 
 export default function SegQuery({ arrLen, onTrigger }: Props) {
@@ -25,7 +31,7 @@ export default function SegQuery({ arrLen, onTrigger }: Props) {
     } else if (from > to) {
       alert("Starting index must be equal to or smaller than ending index");
     } else {
-      onTrigger();
+      onTrigger(from, to, 1, arrLen, 1);
     }
   };
 

@@ -57,7 +57,8 @@ function nodeToTree(
   return {
     name: nodes.value.toString(),
     attributes: {
-      range: `[${l}..${r}]`,
+      left: l,
+      right: r,
       id: idx,
     },
     children: [
@@ -85,14 +86,43 @@ const nodes = segToNode(seg, 1);
 const treeData = [nodeToTree(nodes, 1, arr.length - 1, 1)!];
 
 export type HandleAnimation = {
-  query: () => void;
+  query: (l: number, r: number) => void;
 };
 
 const SegmentTree = forwardRef<HandleAnimation, Props>(
   ({ onUpdate }: Props, ref) => {
+    const [highlighted, setHighlighted] = useState(0);
+
+    const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
     useImperativeHandle(ref, () => ({
-      query: () => {
-        alert("querying");
+      query: async (l: number, r: number) => {
+        const visitNode = async (node: RawNodeDatum): Promise<number> => {
+          if (!node) return 0;
+          const index = Number(node.attributes?.id);
+          if (index !== undefined) {
+            setHighlighted(index);
+            await delay(500);
+          }
+
+          const start = Number(node.attributes?.left);
+          const end = Number(node.attributes?.right);
+          if (start > r || end < l) return 0;
+          if (start >= l && end <= r)
+            return parseInt(node.name.toString() ?? "0");
+
+          const leftChild = node.children?.[0];
+          const rightChild = node.children?.[1];
+          let leftsum = 0;
+          let rightsum = 0;
+          if (leftChild) leftsum = await visitNode(leftChild);
+          if (rightChild) rightsum = await visitNode(rightChild);
+          return leftsum + rightsum;
+        };
+
+        const result = await visitNode(treeData[0]);
+        setHighlighted(0);
+        alert(result);
       },
     }));
 
@@ -120,7 +150,14 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
           leafNodeClassName="node__leaf"
           renderCustomNodeElement={({ nodeDatum }) => (
             <g>
-              <circle r={20} fill="#00ffffff" />
+              <circle
+                r={20}
+                fill={
+                  Number(nodeDatum.attributes?.id) === highlighted
+                    ? "#eb9720ff"
+                    : "#00ffffff"
+                }
+              />
               <text
                 textAnchor="middle"
                 alignmentBaseline="middle"
@@ -142,7 +179,7 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
                 fontWeight="bold"
                 strokeWidth="1"
               >
-                {nodeDatum.attributes?.range}
+                {`[${nodeDatum.attributes?.left}..${nodeDatum.attributes?.right}]`}
               </text>
             </g>
           )}

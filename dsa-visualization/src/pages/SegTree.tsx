@@ -10,9 +10,9 @@ export default function SegTree() {
 
   const segmentTreeRef = useRef<HandleAnimation>(null);
 
-  const triggerQuery = () => {
+  const triggerQuery = (l: number, r: number) => {
     if (segmentTreeRef.current) {
-      segmentTreeRef.current.query();
+      segmentTreeRef.current.query(l, r);
     }
   };
 
