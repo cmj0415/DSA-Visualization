@@ -49,7 +49,8 @@ function segToNode(seg: number[], idx: number): SegNode | undefined {
 function nodeToTree(
   nodes: SegNode | undefined,
   l: number,
-  r: number
+  r: number,
+  idx: number
 ): RawNodeDatum | undefined {
   if (!nodes) return undefined;
   const mid = Math.floor((l + r) / 2);
@@ -57,10 +58,11 @@ function nodeToTree(
     name: nodes.value.toString(),
     attributes: {
       range: `[${l}..${r}]`,
+      id: idx,
     },
     children: [
-      nodeToTree(nodes.left, l, mid),
-      nodeToTree(nodes.right, mid + 1, r),
+      nodeToTree(nodes.left, l, mid, idx * 2),
+      nodeToTree(nodes.right, mid + 1, r, idx * 2 + 1),
     ].filter((child): child is RawNodeDatum => child !== undefined),
   };
 }
@@ -80,7 +82,7 @@ function printNode(nodes: SegNode | undefined, idx: number) {
 
 arrToSeg(arr, seg, 1, arr.length - 1, 1);
 const nodes = segToNode(seg, 1);
-const treeData = [nodeToTree(nodes, 1, arr.length - 1)!];
+const treeData = [nodeToTree(nodes, 1, arr.length - 1, 1)!];
 
 export type HandleAnimation = {
   query: () => void;
