@@ -87,6 +87,7 @@ const treeData = [nodeToTree(nodes, 1, arr.length - 1, 1)!];
 
 export type HandleAnimation = {
   query: (l: number, r: number) => void;
+  update: (idx: number, val: number) => void;
 };
 
 const SegmentTree = forwardRef<HandleAnimation, Props>(
@@ -152,6 +153,10 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
         setHighlightedParent(0);
         setDisplayText(false);
         alert(result);
+      },
+
+      update: (idx: number, val: number) => {
+        console.log("updating...");
       },
     }));
 

@@ -16,6 +16,12 @@ export default function SegTree() {
     }
   };
 
+  const triggerUpdate = (idx: number, val: number) => {
+    if (segmentTreeRef.current) {
+      segmentTreeRef.current.update(idx, val);
+    }
+  };
+
   return (
     <div style={{ width: "100%", height: "100vh" }}>
       <div style={{ padding: "20px" }}>
@@ -31,7 +37,7 @@ export default function SegTree() {
       )}
       {mode === 1 && (
         <div>
-          <SegUpdate />
+          <SegUpdate arrLen={arrLen} onTrigger={triggerUpdate} />
           <Button text="Back" onClickCallback={() => setMode(0)} />
         </div>
       )}
