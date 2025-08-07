@@ -13,6 +13,9 @@ type Props = {
 
 type SegNode = {
   value: number;
+  id: number;
+  rangeL: number;
+  rangeR: number;
   left?: SegNode;
   right?: SegNode;
 };
@@ -37,12 +40,21 @@ function arrToSeg(
   seg[idx] = seg[idx * 2] + seg[idx * 2 + 1];
 }
 
-function segToNode(seg: number[], idx: number): SegNode | undefined {
+function segToNode(
+  seg: number[],
+  l: number,
+  r: number,
+  idx: number
+): SegNode | undefined {
   if (idx >= seg.length) return undefined;
+  const mid = Math.floor((l + r) / 2);
   return {
     value: seg[idx],
-    left: segToNode(seg, idx * 2),
-    right: segToNode(seg, idx * 2 + 1),
+    id: idx,
+    rangeL: l,
+    rangeR: r,
+    left: segToNode(seg, l, mid, idx * 2),
+    right: segToNode(seg, mid + 1, r, idx * 2 + 1),
   };
 }
 
@@ -81,10 +93,6 @@ function printNode(nodes: SegNode | undefined, idx: number) {
   printNode(nodes.right, idx * 2 + 1);
 }
 
-arrToSeg(arr, seg, 1, arr.length - 1, 1);
-const nodes = segToNode(seg, 1);
-const treeData = [nodeToTree(nodes, 1, arr.length - 1, 1)!];
-
 export type HandleAnimation = {
   query: (l: number, r: number) => void;
   update: (idx: number, val: number) => void;
@@ -98,6 +106,13 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
     const [displayText, setDisplayText] = useState(false);
 
     const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
+    arrToSeg(arr, seg, 1, arr.length - 1, 1);
+    const nodes = segToNode(seg, 1, arr.length - 1, 1);
+    const segNodeRef = useRef<SegNode>(nodes);
+    const [treeData, setTreeData] = useState([
+      nodeToTree(segNodeRef.current, 1, arr.length - 1, 1)!,
+    ]);
 
     useImperativeHandle(ref, () => ({
       query: async (l: number, r: number) => {
@@ -155,8 +170,70 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
         alert(result);
       },
 
-      update: (idx: number, val: number) => {
-        console.log("updating...");
+      update: async (idx: number, val: number) => {
+        setDisplayText(true);
+        const visitNode = async (
+          node: SegNode | undefined,
+          parNode: SegNode | undefined
+        ): Promise<void> => {
+          if (!node || !parNode) return;
+
+          const index = Number(node.id);
+          const parIndex = Number(parNode.id);
+          if (index !== undefined && parIndex !== undefined) {
+            setHighlightedChild(index);
+            setHighlightedParent(parIndex);
+          }
+
+          const start = Number(node.rangeL);
+          const end = Number(node.rangeR);
+          if (idx < start || idx > end) {
+            setTextBox(
+              `Index ${idx} out of range [${start}..${end}]. Directly returns.`
+            );
+            await delay(1000);
+            return;
+          }
+          if (start === end) {
+            setTextBox("Leaf reached. Update the value.");
+            node.value = val;
+            const newtree = nodeToTree(
+              segNodeRef.current,
+              1,
+              arr.length - 1,
+              1
+            );
+            if (newtree) setTreeData([newtree]);
+            await delay(1000);
+            return;
+          }
+
+          const leftChild = node.left;
+          const rightChild = node.right;
+          let leftValue = 0;
+          let rightValue = 0;
+          if (leftChild) {
+            setTextBox("Updating left child...");
+            await visitNode(leftChild, node);
+            leftValue = leftChild.value;
+          }
+          if (rightChild) {
+            setTextBox("Updating right child...");
+            await visitNode(rightChild, node);
+            rightValue = rightChild.value;
+          }
+          node.value = leftValue + rightValue;
+          setHighlightedChild(index);
+          setHighlightedParent(parIndex);
+          await delay(1000);
+          const newtree = nodeToTree(segNodeRef.current, 1, arr.length - 1, 1);
+          if (newtree) setTreeData([newtree]);
+        };
+
+        await visitNode(segNodeRef.current, segNodeRef.current);
+        setHighlightedChild(0);
+        setHighlightedParent(0);
+        setDisplayText(false);
       },
     }));
 
