@@ -8,7 +8,7 @@ import {
 import { Tree, type RawNodeDatum } from "react-d3-tree";
 
 type Props = {
-  onUpdate: (val: number) => void;
+  onArrLenUpdate: (val: number) => void;
 };
 
 type SegNode = {
@@ -90,7 +90,7 @@ export type HandleAnimation = {
 };
 
 const SegmentTree = forwardRef<HandleAnimation, Props>(
-  ({ onUpdate }: Props, ref) => {
+  ({ onArrLenUpdate }: Props, ref) => {
     const [highlightedChild, setHighlightedChild] = useState(0);
     const [highlightedParent, setHighlightedParent] = useState(0);
     const [textBox, setTextBox] = useState("");

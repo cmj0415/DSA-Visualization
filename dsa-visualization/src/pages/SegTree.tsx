@@ -21,7 +21,7 @@ export default function SegTree() {
       <div style={{ padding: "20px" }}>
         <h1 style={{ margin: 0 }}>Segment Tree Visualization</h1>
       </div>
-      <SegmentTree ref={segmentTreeRef} onUpdate={setArrLen} />
+      <SegmentTree ref={segmentTreeRef} onArrLenUpdate={setArrLen} />
       <br></br>
       {mode === 0 && (
         <div>
