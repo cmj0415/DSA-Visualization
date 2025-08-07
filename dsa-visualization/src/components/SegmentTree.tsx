@@ -93,11 +93,13 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
   ({ onUpdate }: Props, ref) => {
     const [highlighted, setHighlighted] = useState(0);
     const [textBox, setTextBox] = useState("");
+    const [displayText, setDisplayText] = useState(false);
 
     const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
     useImperativeHandle(ref, () => ({
       query: async (l: number, r: number) => {
+        setDisplayText(true);
         const visitNode = async (node: RawNodeDatum): Promise<number> => {
           if (!node) return 0;
           const index = Number(node.attributes?.id);
@@ -139,6 +141,7 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
 
         const result = await visitNode(treeData[0]);
         setHighlighted(0);
+        setDisplayText(false);
         alert(result);
       },
     }));
@@ -201,9 +204,11 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
             </g>
           )}
         />
-        <div style={{ backgroundColor: "black" }}>
-          <p>{textBox}</p>
-        </div>
+        {displayText && (
+          <div style={{ backgroundColor: "black" }}>
+            <p>{textBox}</p>
+          </div>
+        )}
       </div>
     );
   }
