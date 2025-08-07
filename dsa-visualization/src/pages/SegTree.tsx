@@ -22,7 +22,7 @@ export default function SegTree() {
         <h1 style={{ margin: 0 }}>Segment Tree Visualization</h1>
       </div>
       <SegmentTree ref={segmentTreeRef} onUpdate={setArrLen} />
-
+      <br></br>
       {mode === 0 && (
         <div>
           <Button text="Update" onClickCallback={() => setMode(1)} />

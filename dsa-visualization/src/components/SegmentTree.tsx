@@ -92,6 +92,7 @@ export type HandleAnimation = {
 const SegmentTree = forwardRef<HandleAnimation, Props>(
   ({ onUpdate }: Props, ref) => {
     const [highlighted, setHighlighted] = useState(0);
+    const [textBox, setTextBox] = useState("");
 
     const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
@@ -102,21 +103,37 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
           const index = Number(node.attributes?.id);
           if (index !== undefined) {
             setHighlighted(index);
-            await delay(500);
           }
 
           const start = Number(node.attributes?.left);
           const end = Number(node.attributes?.right);
-          if (start > r || end < l) return 0;
-          if (start >= l && end <= r)
+          if (start > r || end < l) {
+            setTextBox(`[${start}..${end}] out of range. Returns 0.`);
+            await delay(1000);
+            return 0;
+          }
+          if (start >= l && end <= r) {
+            setTextBox(
+              `[${start}..${end}] within range. Returns the value the node holds.`
+            );
+            await delay(1000);
             return parseInt(node.name.toString() ?? "0");
+          }
 
           const leftChild = node.children?.[0];
           const rightChild = node.children?.[1];
           let leftsum = 0;
           let rightsum = 0;
-          if (leftChild) leftsum = await visitNode(leftChild);
-          if (rightChild) rightsum = await visitNode(rightChild);
+          if (leftChild) {
+            setTextBox("Searching left child...");
+            await delay(1000);
+            leftsum = await visitNode(leftChild);
+          }
+          if (rightChild) {
+            setTextBox("Searching right child...");
+            await delay(1000);
+            rightsum = await visitNode(rightChild);
+          }
           return leftsum + rightsum;
         };
 
@@ -184,6 +201,9 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
             </g>
           )}
         />
+        <div style={{ backgroundColor: "black" }}>
+          <p>{textBox}</p>
+        </div>
       </div>
     );
   }
