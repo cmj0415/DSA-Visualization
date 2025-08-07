@@ -91,7 +91,8 @@ export type HandleAnimation = {
 
 const SegmentTree = forwardRef<HandleAnimation, Props>(
   ({ onUpdate }: Props, ref) => {
-    const [highlighted, setHighlighted] = useState(0);
+    const [highlightedChild, setHighlightedChild] = useState(0);
+    const [highlightedParent, setHighlightedParent] = useState(0);
     const [textBox, setTextBox] = useState("");
     const [displayText, setDisplayText] = useState(false);
 
@@ -100,11 +101,18 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
     useImperativeHandle(ref, () => ({
       query: async (l: number, r: number) => {
         setDisplayText(true);
-        const visitNode = async (node: RawNodeDatum): Promise<number> => {
+        const visitNode = async (
+          node: RawNodeDatum,
+          parNode: RawNodeDatum = treeData[0]
+        ): Promise<number> => {
           if (!node) return 0;
           const index = Number(node.attributes?.id);
+          const parIndex = Number(parNode.attributes?.id);
           if (index !== undefined) {
-            setHighlighted(index);
+            setHighlightedChild(index);
+          }
+          if (parIndex !== undefined) {
+            setHighlightedParent(parIndex);
           }
 
           const start = Number(node.attributes?.left);
@@ -129,18 +137,19 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
           if (leftChild) {
             setTextBox("Searching left child...");
             await delay(1000);
-            leftsum = await visitNode(leftChild);
+            leftsum = await visitNode(leftChild, node);
           }
           if (rightChild) {
             setTextBox("Searching right child...");
             await delay(1000);
-            rightsum = await visitNode(rightChild);
+            rightsum = await visitNode(rightChild, node);
           }
           return leftsum + rightsum;
         };
 
         const result = await visitNode(treeData[0]);
-        setHighlighted(0);
+        setHighlightedChild(0);
+        setHighlightedParent(0);
         setDisplayText(false);
         alert(result);
       },
@@ -173,8 +182,10 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
               <circle
                 r={20}
                 fill={
-                  Number(nodeDatum.attributes?.id) === highlighted
+                  Number(nodeDatum.attributes?.id) === highlightedChild
                     ? "#eb9720ff"
+                    : Number(nodeDatum.attributes?.id) === highlightedParent
+                    ? "#f633b8ff"
                     : "#00ffffff"
                 }
               />
