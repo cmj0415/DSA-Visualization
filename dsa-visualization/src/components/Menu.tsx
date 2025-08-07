@@ -37,6 +37,13 @@ export default function Menu() {
           </Link>
         </div>
       )}
+      {isOpen && (
+        <div className="dropdown">
+          <Link to="/MergeSort" onClick={() => setIsOpen(false)}>
+            Merge Sort
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
