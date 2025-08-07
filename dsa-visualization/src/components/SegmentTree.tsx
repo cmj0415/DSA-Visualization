@@ -118,12 +118,12 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
       query: async (l: number, r: number) => {
         setDisplayText(true);
         const visitNode = async (
-          node: RawNodeDatum,
-          parNode: RawNodeDatum = treeData[0]
+          node: SegNode | undefined,
+          parNode: SegNode | undefined
         ): Promise<number> => {
-          if (!node) return 0;
-          const index = Number(node.attributes?.id);
-          const parIndex = Number(parNode.attributes?.id);
+          if (!node || !parNode) return 0;
+          const index = node.id;
+          const parIndex = parNode.id;
           if (index !== undefined) {
             setHighlightedChild(index);
           }
@@ -131,8 +131,8 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
             setHighlightedParent(parIndex);
           }
 
-          const start = Number(node.attributes?.left);
-          const end = Number(node.attributes?.right);
+          const start = node.rangeL;
+          const end = node.rangeR;
           if (start > r || end < l) {
             setTextBox(`[${start}..${end}] out of range. Returns 0.`);
             await delay(1000);
@@ -143,11 +143,11 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
               `[${start}..${end}] within range. Returns the value the node holds.`
             );
             await delay(1000);
-            return parseInt(node.name.toString() ?? "0");
+            return node.value;
           }
 
-          const leftChild = node.children?.[0];
-          const rightChild = node.children?.[1];
+          const leftChild = node.left;
+          const rightChild = node.right;
           let leftsum = 0;
           let rightsum = 0;
           if (leftChild) {
@@ -160,10 +160,13 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
             await delay(1000);
             rightsum = await visitNode(rightChild, node);
           }
+          setHighlightedChild(index);
+          setHighlightedParent(parIndex);
+          await delay(1000);
           return leftsum + rightsum;
         };
 
-        const result = await visitNode(treeData[0]);
+        const result = await visitNode(segNodeRef.current, segNodeRef.current);
         setHighlightedChild(0);
         setHighlightedParent(0);
         setDisplayText(false);
