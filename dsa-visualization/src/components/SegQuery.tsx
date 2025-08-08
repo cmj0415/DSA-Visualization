@@ -2,11 +2,10 @@ import { useState, useEffect } from "react";
 import Button from "./Button";
 
 type Props = {
-  arrLen: number;
   onTrigger: (l: number, r: number) => void;
 };
 
-export default function SegQuery({ arrLen, onTrigger }: Props) {
+export default function SegQuery({ onTrigger }: Props) {
   const [fromInput, setFromInput] = useState("");
   const [toInput, setToInput] = useState("");
 
@@ -20,13 +19,7 @@ export default function SegQuery({ arrLen, onTrigger }: Props) {
     const from = parseInt(fromInput);
     const to = parseInt(toInput);
 
-    if (from < 1 || from > arrLen || to < 1 || to > arrLen) {
-      alert("Out of range!");
-    } else if (from > to) {
-      alert("Starting index must be equal to or smaller than ending index");
-    } else {
-      onTrigger(from, to);
-    }
+    onTrigger(from, to);
   };
 
   return (

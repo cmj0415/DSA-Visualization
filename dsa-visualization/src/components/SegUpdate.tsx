@@ -2,11 +2,10 @@ import { useState } from "react";
 import Button from "./Button";
 
 type Props = {
-  arrLen: number;
   onTrigger: (idx: number, val: number) => void;
 };
 
-export default function SegUpdate({ arrLen, onTrigger }: Props) {
+export default function SegUpdate({ onTrigger }: Props) {
   const [selIndexInput, setSelIndexInput] = useState("");
   const [newValueInput, setNewValueInput] = useState("");
 
@@ -20,13 +19,7 @@ export default function SegUpdate({ arrLen, onTrigger }: Props) {
     const selIndex = parseInt(selIndexInput);
     const newValue = parseInt(newValueInput);
 
-    if (selIndex < 1 || selIndex > arrLen) {
-      alert("Out of range!");
-    } else if (newValue < -100 || newValue > 100) {
-      alert("Please enter a value between -100 and 100");
-    } else {
-      onTrigger(selIndex, newValue);
-    }
+    onTrigger(selIndex, newValue);
   };
 
   return (
