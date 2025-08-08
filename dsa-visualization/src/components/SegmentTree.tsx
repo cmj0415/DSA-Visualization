@@ -58,7 +58,7 @@ function nodeToTree(
   r: number,
   idx: number
 ): RawNodeDatum | undefined {
-  if (!nodes || !nodes.value) return undefined;
+  if (!nodes || nodes.value === undefined) return undefined;
   const mid = Math.floor((l + r) / 2);
   return {
     name: nodes.value.toString(),
@@ -276,6 +276,9 @@ const SegmentTree = forwardRef<HandleAnimation>((_, ref) => {
         rootNodeClassName="node__root"
         branchNodeClassName="node__branch"
         leafNodeClassName="node__leaf"
+        nodeSize={{ x: 30, y: 30 }}
+        depthFactor={80}
+        separation={{ nonSiblings: 7, siblings: 4 }}
         renderCustomNodeElement={({ nodeDatum }) => (
           <g>
             <circle
