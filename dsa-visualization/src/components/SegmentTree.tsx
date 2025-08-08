@@ -106,6 +106,7 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
     const [displayText, setDisplayText] = useState(false);
 
     const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+    const delayTime: number = 1000;
 
     arrToSeg(arr, seg, 1, arr.length - 1, 1);
     const nodes = segToNode(seg, 1, arr.length - 1, 1);
@@ -135,14 +136,14 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
           const end = node.rangeR;
           if (start > r || end < l) {
             setTextBox(`[${start}..${end}] out of range. Returns 0.`);
-            await delay(1000);
+            await delay(delayTime);
             return 0;
           }
           if (start >= l && end <= r) {
             setTextBox(
-              `[${start}..${end}] within range. Returns the value the node holds.`
+              `[${start}..${end}] within range. Returns ${node.value}.`
             );
-            await delay(1000);
+            await delay(delayTime);
             return node.value;
           }
 
@@ -152,17 +153,18 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
           let rightsum = 0;
           if (leftChild) {
             setTextBox("Searching left child...");
-            await delay(1000);
+            await delay(delayTime);
             leftsum = await visitNode(leftChild, node);
           }
+          setHighlightedChild(0);
           if (rightChild) {
             setTextBox("Searching right child...");
-            await delay(1000);
+            await delay(delayTime);
             rightsum = await visitNode(rightChild, node);
           }
           setHighlightedChild(index);
           setHighlightedParent(parIndex);
-          await delay(1000);
+          await delay(delayTime);
           return leftsum + rightsum;
         };
 
@@ -194,11 +196,11 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
             setTextBox(
               `Index ${idx} out of range [${start}..${end}]. Directly returns.`
             );
-            await delay(1000);
+            await delay(delayTime);
             return;
           }
           if (start === end) {
-            setTextBox("Leaf reached. Update the value.");
+            setTextBox(`Leaf reached. Update the value to ${val}.`);
             node.value = val;
             const newtree = nodeToTree(
               segNodeRef.current,
@@ -207,7 +209,7 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
               1
             );
             if (newtree) setTreeData([newtree]);
-            await delay(1000);
+            await delay(delayTime);
             return;
           }
 
@@ -217,18 +219,24 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
           let rightValue = 0;
           if (leftChild) {
             setTextBox("Updating left child...");
+            await delay(delayTime);
             await visitNode(leftChild, node);
             leftValue = leftChild.value;
           }
+          setHighlightedChild(0);
           if (rightChild) {
             setTextBox("Updating right child...");
+            await delay(delayTime);
             await visitNode(rightChild, node);
             rightValue = rightChild.value;
           }
           node.value = leftValue + rightValue;
+          setTextBox(
+            `Update the value to ${leftValue} + ${rightValue} = ${node.value}`
+          );
           setHighlightedChild(index);
           setHighlightedParent(parIndex);
-          await delay(1000);
+          await delay(delayTime);
           const newtree = nodeToTree(segNodeRef.current, 1, arr.length - 1, 1);
           if (newtree) setTreeData([newtree]);
         };
