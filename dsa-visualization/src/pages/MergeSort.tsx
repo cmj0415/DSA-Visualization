@@ -10,18 +10,16 @@ type Props = {
   onUpdate: (val: number) => void;
 };
 
-const array = new Array(16);
-
 function merge(arr: number[], l: number, mid: number, r: number): void {
   const n = r - l + 1;
   let lcount = l;
   let rcount = mid + 1;
   let newarray: number[] = [];
   for (let i = 0; i < n; i++) {
-    if (lcount === mid) {
+    if (lcount === mid + 1) {
       newarray[i] = arr[rcount];
       rcount++;
-    } else if (rcount === r) {
+    } else if (rcount === r + 1) {
       newarray[i] = arr[lcount];
       lcount++;
     } else if (arr[lcount] <= arr[rcount]) {
@@ -42,4 +40,11 @@ function mergesort(arr: number[], l: number, r: number): void {
     mergesort(arr, mid + 1, r);
     merge(arr, l, mid, r);
   }
+}
+
+export default function MergeSort() {
+  const arr = [2, 8, 5, 1, 6, 7, 4, 3];
+  mergesort(arr, 0, 7);
+  console.log("sorted:", arr);
+  return <div></div>;
 }
