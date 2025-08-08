@@ -1,33 +1,48 @@
 import { useState } from "react";
+import Button from "./Button";
 type Props = {
   onSubmit: (arr: number[]) => void;
 };
 export default function ArraySetup({ onSubmit }: Props) {
   const [arrayLength, setArrayLength] = useState<number>(4);
-  const [arrayValues, setArrayValues] = useState<number[]>(Array(4).fill(0));
+  const [inputValues, setInputValues] = useState<string[]>(Array(4).fill(""));
 
+  const isNumber = (input: string): boolean => {
+    for (let ch of input) {
+      if (ch < "0" || ch > "9") return false;
+    }
+    return true;
+  };
   const handleLengthChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const length = Number(event.target.value);
     setArrayLength(length);
-    setArrayValues(Array(length).fill(0));
+    setInputValues(Array(length).fill(""));
   };
 
-  const handleValueChange = (index: number, value: string) => {
-    const newValues = [...arrayValues];
-    newValues[index] = Number(value) || 0;
-    setArrayValues(newValues);
+  const handleInputChange = (index: number, value: string) => {
+    const newInput = [...inputValues];
+    newInput[index] = value;
+    setInputValues(newInput);
   };
 
-  const handleSubmit = () => {
-    onSubmit(arrayValues);
+  const handleValueChange = () => {
+    for (let i of inputValues) {
+      if (!isNumber(i)) {
+        alert("Please enter numbers!");
+        return;
+      } else if (Number(i) < -100 || Number(i) > 100) {
+        alert("Please enter numbers between -100 and 100");
+        return;
+      }
+    }
+    const parsedValues = inputValues.map((value) => Number(value));
+    onSubmit(parsedValues);
   };
+
   return (
     <div style={{ padding: "20px" }}>
-      <h2>設定陣列</h2>
-
-      {/* 下拉選單 */}
       <label>
-        陣列長度：
+        Select array length and then enter the values：
         <select value={arrayLength} onChange={handleLengthChange}>
           {[...Array(5)].map((_, i) => (
             <option key={i} value={i + 4}>
@@ -37,23 +52,19 @@ export default function ArraySetup({ onSubmit }: Props) {
         </select>
       </label>
 
-      {/* 動態生成輸入框 */}
       <div style={{ marginTop: "10px", display: "flex", gap: "8px" }}>
-        {arrayValues.map((value, i) => (
+        {[...Array(arrayLength)].map((value, i) => (
           <input
             key={i}
-            type="number"
+            type="text"
             value={value}
-            onChange={(e) => handleValueChange(i, e.target.value)}
+            onChange={(e) => handleInputChange(i, e.target.value)}
             style={{ width: "50px", textAlign: "center" }}
           />
         ))}
       </div>
 
-      {/* 提交按鈕 */}
-      <button onClick={handleSubmit} style={{ marginTop: "20px" }}>
-        開始視覺化
-      </button>
+      <Button text="Start!" onClickCallback={handleValueChange} />
     </div>
   );
 }
