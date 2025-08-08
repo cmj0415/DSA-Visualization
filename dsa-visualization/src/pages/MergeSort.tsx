@@ -30,7 +30,7 @@ function merge(arr: number[], l: number, mid: number, r: number): void {
       rcount++;
     }
   }
-  for (let i = l, j = 0; i < r; i++, j++) arr[i] = newarray[j];
+  for (let i = l, j = 0; i <= r; i++, j++) arr[i] = newarray[j];
 }
 
 function mergesort(arr: number[], l: number, r: number): void {
@@ -46,5 +46,6 @@ export default function MergeSort() {
   const arr = [2, 8, 5, 1, 6, 7, 4, 3];
   mergesort(arr, 0, 7);
   console.log("sorted:", arr);
+  alert(arr);
   return <div></div>;
 }
