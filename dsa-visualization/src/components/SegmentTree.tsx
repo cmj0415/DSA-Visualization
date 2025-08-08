@@ -1,3 +1,4 @@
+import { useLocation } from "react-router-dom";
 import {
   useState,
   useEffect,
@@ -19,9 +20,6 @@ type SegNode = {
   left?: SegNode;
   right?: SegNode;
 };
-
-const arr = [0, 1, 2, 3, 4];
-const seg = new Array(8);
 
 function arrToSeg(
   arr: number[],
@@ -64,7 +62,7 @@ function nodeToTree(
   r: number,
   idx: number
 ): RawNodeDatum | undefined {
-  if (!nodes) return undefined;
+  if (!nodes || !nodes.value) return undefined;
   const mid = Math.floor((l + r) / 2);
   return {
     name: nodes.value.toString(),
@@ -108,8 +106,14 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
     const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
     const delayTime: number = 1000;
 
+    const { state } = useLocation();
+    const initialArray = state?.initialArray || [0];
+    const arr = [0, ...initialArray];
+    const seg = new Array(4 * arr.length);
+
     arrToSeg(arr, seg, 1, arr.length - 1, 1);
     const nodes = segToNode(seg, 1, arr.length - 1, 1);
+    printNode(nodes, 1);
     const segNodeRef = useRef<SegNode>(nodes);
     const [treeData, setTreeData] = useState([
       nodeToTree(segNodeRef.current, 1, arr.length - 1, 1)!,
