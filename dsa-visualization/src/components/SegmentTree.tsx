@@ -108,7 +108,6 @@ const SegmentTree = forwardRef<HandleAnimation>((_, ref) => {
 
   arrToSeg(arr, seg, 1, arr.length - 1, 1);
   const nodes = segToNode(seg, 1, arr.length - 1, 1);
-  printNode(nodes, 1);
   const segNodeRef = useRef<SegNode>(nodes);
   const [treeData, setTreeData] = useState([
     nodeToTree(segNodeRef.current, 1, arr.length - 1, 1)!,
