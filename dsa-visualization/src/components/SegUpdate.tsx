@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Button from "./Button";
+import { isNumber } from "../utils/func.ts";
 
 type Props = {
   onTrigger: (idx: number, val: number) => void;
@@ -16,8 +17,12 @@ export default function SegUpdate({ onTrigger }: Props) {
     setNewValueInput(event.target.value);
   };
   const handleConfirm = () => {
-    const selIndex = parseInt(selIndexInput);
-    const newValue = parseInt(newValueInput);
+    if (!isNumber(selIndexInput) || !isNumber(newValueInput)) {
+      alert("Please enter integers!");
+      return;
+    }
+    const selIndex = Number(selIndexInput);
+    const newValue = Number(newValueInput);
 
     onTrigger(selIndex, newValue);
   };

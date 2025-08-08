@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Button from "./Button";
-
+import { isNumber } from "../utils/func.ts";
 type Props = {
   onTrigger: (l: number, r: number) => void;
 };
@@ -16,8 +16,12 @@ export default function SegQuery({ onTrigger }: Props) {
     setToInput(event.target.value);
   };
   const handleConfirm = () => {
-    const from = parseInt(fromInput);
-    const to = parseInt(toInput);
+    if (!isNumber(fromInput) || !isNumber(toInput)) {
+      alert("Please enter integers!");
+      return;
+    }
+    const from = Number(fromInput);
+    const to = Number(toInput);
 
     onTrigger(from, to);
   };
