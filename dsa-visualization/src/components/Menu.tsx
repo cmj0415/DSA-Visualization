@@ -35,15 +35,12 @@ export default function Menu() {
           <Link to="/segtree" onClick={() => setIsOpen(false)}>
             Segment Tree
           </Link>
-        </div>
-      )}
-      {isOpen && (
-        <div className="dropdown">
           <Link to="/MergeSort" onClick={() => setIsOpen(false)}>
             Merge Sort
           </Link>
         </div>
       )}
+      {isOpen && <div className="dropdown"></div>}
     </div>
   );
 }
