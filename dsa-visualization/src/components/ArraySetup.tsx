@@ -52,12 +52,20 @@ export default function ArraySetup({ onSubmit }: Props) {
         </select>
       </label>
 
-      <div style={{ marginTop: "10px", display: "flex", gap: "8px" }}>
-        {[...Array(arrayLength)].map((value, i) => (
+      <div
+        style={{
+          marginTop: "10px",
+          marginBottom: "10px",
+          display: "flex",
+          gap: "8px",
+          justifyContent: "center",
+        }}
+      >
+        {[...Array(arrayLength)].map((_, i) => (
           <input
             key={i}
             type="text"
-            value={value}
+            value={inputValues[i]}
             onChange={(e) => handleInputChange(i, e.target.value)}
             style={{ width: "50px", textAlign: "center" }}
           />
