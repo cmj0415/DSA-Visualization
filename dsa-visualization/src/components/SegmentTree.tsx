@@ -257,12 +257,20 @@ const SegmentTree = forwardRef<HandleAnimation>((_, ref) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [translate, setTranslate] = useState({ x: 0, y: 0 });
 
-  useEffect(() => {
-    const container = containerRef.current;
-    if (container) {
-      const { width, height } = container.getBoundingClientRect();
-      setTranslate({ x: width / 2, y: 50 });
+  const centerTree = () => {
+    if (containerRef.current) {
+      const dimensions = containerRef.current.getBoundingClientRect();
+      setTranslate({
+        x: dimensions.width / 2,
+        y: 50,
+      });
     }
+  };
+
+  useEffect(() => {
+    centerTree();
+    window.addEventListener("resize", centerTree);
+    return () => window.removeEventListener("resize", centerTree);
   }, []);
 
   return (
