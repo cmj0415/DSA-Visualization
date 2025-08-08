@@ -6,7 +6,6 @@ import SegQuery from "../components/SegQuery";
 
 export default function SegTree() {
   const [mode, setMode] = useState(0);
-  const [arrLen, setArrLen] = useState(4);
 
   const segmentTreeRef = useRef<HandleAnimation>(null);
 
@@ -27,7 +26,7 @@ export default function SegTree() {
       <div style={{ padding: "20px" }}>
         <h1 style={{ margin: 0 }}>Segment Tree Visualization</h1>
       </div>
-      <SegmentTree ref={segmentTreeRef} onArrLenUpdate={setArrLen} />
+      <SegmentTree ref={segmentTreeRef} />
       <br></br>
       {mode === 0 && (
         <div>
@@ -37,13 +36,13 @@ export default function SegTree() {
       )}
       {mode === 1 && (
         <div>
-          <SegUpdate arrLen={arrLen} onTrigger={triggerUpdate} />
+          <SegUpdate onTrigger={triggerUpdate} />
           <Button text="Back" onClickCallback={() => setMode(0)} />
         </div>
       )}
       {mode === 2 && (
         <div>
-          <SegQuery arrLen={arrLen} onTrigger={triggerQuery} />
+          <SegQuery onTrigger={triggerQuery} />
           <Button text="Back" onClickCallback={() => setMode(0)} />
         </div>
       )}
