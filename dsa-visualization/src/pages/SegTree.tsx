@@ -6,6 +6,7 @@ import SegQuery from "../components/SegQuery";
 
 export default function SegTree() {
   const [mode, setMode] = useState(0);
+  const [isAnimationPlaying, setIsAnimationPlaying] = useState(false);
 
   const segmentTreeRef = useRef<HandleAnimation>(null);
 
@@ -26,24 +27,38 @@ export default function SegTree() {
       <div style={{ padding: "20px" }}>
         <h1 style={{ margin: 0 }}>Segment Tree Visualization</h1>
       </div>
-      <SegmentTree ref={segmentTreeRef} />
+      <SegmentTree ref={segmentTreeRef} setPlaying={setIsAnimationPlaying} />
       <br></br>
       {mode === 0 && (
         <div>
-          <Button text="Update" onClickCallback={() => setMode(1)} />
-          <Button text="Query" onClickCallback={() => setMode(2)} />
+          <Button
+            text="Update"
+            disabled={false}
+            onClickCallback={() => setMode(1)}
+          />
+          <Button
+            text="Query"
+            disabled={false}
+            onClickCallback={() => setMode(2)}
+          />
         </div>
       )}
       {mode === 1 && (
         <div>
-          <SegUpdate onTrigger={triggerUpdate} />
-          <Button text="Back" onClickCallback={() => setMode(0)} />
+          <SegUpdate
+            onTrigger={triggerUpdate}
+            onBackClicked={setMode}
+            isAnimationPlaying={isAnimationPlaying}
+          />
         </div>
       )}
       {mode === 2 && (
         <div>
-          <SegQuery onTrigger={triggerQuery} />
-          <Button text="Back" onClickCallback={() => setMode(0)} />
+          <SegQuery
+            onTrigger={triggerQuery}
+            onBackClicked={setMode}
+            isAnimationPlaying={isAnimationPlaying}
+          />
         </div>
       )}
     </div>

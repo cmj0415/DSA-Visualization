@@ -8,8 +8,10 @@ export default function ArraySetup({ onSubmit }: Props) {
   const [inputValues, setInputValues] = useState<string[]>(Array(4).fill(""));
 
   const isNumber = (input: string): boolean => {
-    for (let ch of input) {
-      if (ch < "0" || ch > "9") return false;
+    const len = input.length;
+    for (let i = 0; i < len; i++) {
+      if (i === 0 && input[i] === "-") continue;
+      if (input[i] < "0" || input[i] > "9") return false;
     }
     return true;
   };
@@ -28,10 +30,10 @@ export default function ArraySetup({ onSubmit }: Props) {
   const handleValueChange = () => {
     for (let i of inputValues) {
       if (!isNumber(i)) {
-        alert("Please enter numbers!");
+        alert("Please enter integers!");
         return;
       } else if (Number(i) < -100 || Number(i) > 100) {
-        alert("Please enter numbers between -100 and 100");
+        alert("Please enter integers between -100 and 100");
         return;
       }
     }
@@ -72,7 +74,11 @@ export default function ArraySetup({ onSubmit }: Props) {
         ))}
       </div>
 
-      <Button text="Start!" onClickCallback={handleValueChange} />
+      <Button
+        text="Start!"
+        disabled={false}
+        onClickCallback={handleValueChange}
+      />
     </div>
   );
 }
