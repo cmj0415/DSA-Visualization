@@ -32,7 +32,7 @@ export default function Menu() {
 
       {isOpen && (
         <div className="dropdown">
-          <Link to="/segtree" onClick={() => setIsOpen(false)}>
+          <Link to="/arr-setup" onClick={() => setIsOpen(false)}>
             Segment Tree
           </Link>
         </div>
