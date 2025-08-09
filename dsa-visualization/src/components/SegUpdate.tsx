@@ -4,9 +4,15 @@ import { isNumber } from "../utils/func.ts";
 
 type Props = {
   onTrigger: (idx: number, val: number) => void;
+  onBackClicked: (mode: number) => void;
+  isAnimationPlaying: boolean;
 };
 
-export default function SegUpdate({ onTrigger }: Props) {
+export default function SegUpdate({
+  onTrigger,
+  onBackClicked,
+  isAnimationPlaying,
+}: Props) {
   const [selIndexInput, setSelIndexInput] = useState("");
   const [newValueInput, setNewValueInput] = useState("");
 
@@ -37,7 +43,16 @@ export default function SegUpdate({ onTrigger }: Props) {
         <input name="idx" value={selIndexInput} onChange={handleIdxChange} />
         New Value:
         <input name="val" value={newValueInput} onChange={handleValChange} />
-        <Button text="Confirm" onClickCallback={handleConfirm} />
+        <Button
+          text="Confirm"
+          disabled={isAnimationPlaying}
+          onClickCallback={handleConfirm}
+        />
+        <Button
+          text="Back"
+          disabled={isAnimationPlaying}
+          onClickCallback={() => onBackClicked(0)}
+        />
       </div>
     </div>
   );

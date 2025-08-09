@@ -74,7 +74,11 @@ export default function ArraySetup({ onSubmit }: Props) {
         ))}
       </div>
 
-      <Button text="Start!" onClickCallback={handleValueChange} />
+      <Button
+        text="Start!"
+        disabled={false}
+        onClickCallback={handleValueChange}
+      />
     </div>
   );
 }

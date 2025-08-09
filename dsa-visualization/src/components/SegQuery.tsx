@@ -3,9 +3,15 @@ import Button from "./Button";
 import { isNumber } from "../utils/func.ts";
 type Props = {
   onTrigger: (l: number, r: number) => void;
+  onBackClicked: (mode: number) => void;
+  isAnimationPlaying: boolean;
 };
 
-export default function SegQuery({ onTrigger }: Props) {
+export default function SegQuery({
+  onTrigger,
+  onBackClicked,
+  isAnimationPlaying,
+}: Props) {
   const [fromInput, setFromInput] = useState("");
   const [toInput, setToInput] = useState("");
 
@@ -34,7 +40,16 @@ export default function SegQuery({ onTrigger }: Props) {
         <input name="from" value={fromInput} onChange={handleFromChange} />
         To:
         <input name="to" value={toInput} onChange={handleToChange} />
-        <Button text="Confirm" onClickCallback={handleConfirm} />
+        <Button
+          text="Confirm"
+          disabled={isAnimationPlaying}
+          onClickCallback={handleConfirm}
+        />
+        <Button
+          text="Back"
+          disabled={isAnimationPlaying}
+          onClickCallback={() => onBackClicked(0)}
+        />
       </div>
     </div>
   );
