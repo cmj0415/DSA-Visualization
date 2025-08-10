@@ -316,6 +316,17 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
           separation={{ nonSiblings: 7, siblings: 4 }}
           renderCustomNodeElement={({ nodeDatum }) => (
             <g>
+              <rect width={30} height={15} fill="#d898e6ff" x={12} y={12} />
+              <text
+                x={27}
+                y={19.5}
+                textAnchor="middle"
+                alignmentBaseline="middle"
+                fontSize="8"
+                fill="black"
+              >
+                {nodeDatum.attributes?.lazy ?? "0"}
+              </text>
               <circle
                 r={20}
                 fill={
