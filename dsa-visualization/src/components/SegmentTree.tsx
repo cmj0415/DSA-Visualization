@@ -134,6 +134,22 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
       nodeToTree(segNodeRef.current, 1, arr.length - 1, 1)!,
     ]);
 
+    const pushDown = async (node: SegNode | undefined): Promise<void> => {
+      if (node === undefined || node.lazy === 0) return;
+      setTextBox("Pushing down lazy tag...");
+      const mid = Math.floor((node.rangeL + node.rangeR) / 2);
+      if (node.left) {
+        node.left.lazy += node.lazy;
+        node.left.value += (mid - node.rangeL + 1) * node.lazy;
+      }
+      if (node.right) {
+        node.right.lazy += node.lazy;
+        node.right.value += (node.rangeR - mid) * node.lazy;
+      }
+      node.lazy = 0;
+      await delay(delayTime);
+    };
+
     useImperativeHandle(ref, () => ({
       query: async (l: number, r: number) => {
         if (l < 1 || l >= arr.length || r < 1 || r >= arr.length) {
@@ -161,6 +177,11 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
 
           const start = node.rangeL;
           const end = node.rangeR;
+          await pushDown(node);
+          const newtree = nodeToTree(segNodeRef.current, 1, arr.length - 1, 1);
+          if (newtree) setTreeData([newtree]);
+          await delay(delayTime);
+
           if (start > r || end < l) {
             setTextBox(`[${start}..${end}] out of range. Returns 0.`);
             await delay(delayTime);
@@ -306,21 +327,7 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
         setPlaying(true);
         setDisplayText(true);
         printNode(segNodeRef.current, 1);
-        const pushDown = async (node: SegNode | undefined): Promise<void> => {
-          if (node === undefined || node.lazy === 0) return;
-          setTextBox("Pushing down lazy tag...");
-          const mid = Math.floor((node.rangeL + node.rangeR) / 2);
-          if (node.left) {
-            node.left.lazy += node.lazy;
-            node.left.value += (mid - node.rangeL + 1) * node.lazy;
-          }
-          if (node.right) {
-            node.right.lazy += node.lazy;
-            node.right.value += (node.rangeR - mid) * node.lazy;
-          }
-          node.lazy = 0;
-          await delay(delayTime);
-        };
+
         const visitNode = async (
           node: SegNode | undefined,
           parNode: SegNode | undefined
