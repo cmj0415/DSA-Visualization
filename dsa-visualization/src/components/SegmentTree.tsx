@@ -288,6 +288,20 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
       },
 
       rangeUpdate: async (l: number, r: number, val: number) => {
+        if (l < 1 || l >= arr.length || r < 1 || r >= arr.length) {
+          alert("Out of range!");
+          return;
+        } else if (l > r) {
+          alert("Starting index must be smaller than or equal to ending index");
+          return;
+        }
+        if (val < -10 || val > 10) {
+          alert("Increment must be between -10 and 10");
+          return;
+        }
+        const newarr = [...arr];
+        for (let i = l; i <= r; i++) newarr[i] += val;
+        setArr(newarr);
         setDisplayText(true);
         printNode(segNodeRef.current, 1);
         const pushDown = async (node: SegNode | undefined): Promise<void> => {
