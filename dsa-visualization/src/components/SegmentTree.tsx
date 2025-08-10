@@ -366,42 +366,36 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
             return;
           }
 
-          if (start !== end) {
-            await pushDown(node);
-            const newtree = nodeToTree(
-              segNodeRef.current,
-              1,
-              arr.length - 1,
-              1
-            );
-            if (newtree) setTreeData([newtree]);
-            await delay(delayTime);
+          await pushDown(node);
+          let newtree = nodeToTree(segNodeRef.current, 1, arr.length - 1, 1);
+          if (newtree) setTreeData([newtree]);
+          await delay(delayTime);
 
-            const leftChild = node.left;
-            const rightChild = node.right;
-            let leftsum = 0;
-            let rightsum = 0;
-            if (leftChild) {
-              setTextBox("Updating left child...");
-              await delay(delayTime);
-              await visitNode(leftChild, node);
-              leftsum = leftChild.value;
-            }
-            setHighlightedChild(0);
-            if (rightChild) {
-              setTextBox("Updating right child...");
-              await delay(delayTime);
-              await visitNode(rightChild, node);
-              rightsum = rightChild.value;
-            }
-            setHighlightedChild(index);
-            setHighlightedParent(parIndex);
-            node.value = leftsum + rightsum;
-            setTextBox(
-              `Update the value to ${leftsum} + ${rightsum} = ${node.value}`
-            );
+          const leftChild = node.left;
+          const rightChild = node.right;
+          let leftsum = 0;
+          let rightsum = 0;
+          if (leftChild) {
+            setTextBox("Updating left child...");
+            await delay(delayTime);
+            await visitNode(leftChild, node);
+            leftsum = leftChild.value;
           }
-          const newtree = nodeToTree(segNodeRef.current, 1, arr.length - 1, 1);
+          setHighlightedChild(0);
+          if (rightChild) {
+            setTextBox("Updating right child...");
+            await delay(delayTime);
+            await visitNode(rightChild, node);
+            rightsum = rightChild.value;
+          }
+          setHighlightedChild(index);
+          setHighlightedParent(parIndex);
+          node.value = leftsum + rightsum;
+          setTextBox(
+            `Update the value to ${leftsum} + ${rightsum} = ${node.value}`
+          );
+
+          newtree = nodeToTree(segNodeRef.current, 1, arr.length - 1, 1);
           if (newtree) setTreeData([newtree]);
           await delay(delayTime);
         };
