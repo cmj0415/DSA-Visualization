@@ -3,6 +3,7 @@ import Button from "../components/Button";
 import SegmentTree, { type HandleAnimation } from "../components/SegmentTree";
 import SegUpdate from "../components/SegUpdate";
 import SegQuery from "../components/SegQuery";
+import SegRangeUpdate from "../components/SegRangeUpdate";
 
 export default function SegTree() {
   const [mode, setMode] = useState(0);
@@ -19,6 +20,12 @@ export default function SegTree() {
   const triggerUpdate = (idx: number, val: number) => {
     if (segmentTreeRef.current) {
       segmentTreeRef.current.update(idx, val);
+    }
+  };
+
+  const triggerRangeUpdate = (l: number, r: number, val: number) => {
+    if (segmentTreeRef.current) {
+      segmentTreeRef.current.rangeUpdate(l, r, val);
     }
   };
 
@@ -47,6 +54,11 @@ export default function SegTree() {
             text="Query"
             disabled={false}
             onClickCallback={() => setMode(2)}
+          />
+          <Button
+            text="Range Update"
+            disabled={false}
+            onClickCallback={() => setMode(3)}
           />
         </div>
       )}
@@ -77,6 +89,22 @@ export default function SegTree() {
         >
           <SegQuery
             onTrigger={triggerQuery}
+            onBackClicked={setMode}
+            isAnimationPlaying={isAnimationPlaying}
+          />
+        </div>
+      )}
+      {mode === 3 && (
+        <div
+          style={{
+            marginTop: "10px",
+            position: "absolute",
+            right: 0,
+            width: "70%",
+          }}
+        >
+          <SegRangeUpdate
+            onTrigger={triggerRangeUpdate}
             onBackClicked={setMode}
             isAnimationPlaying={isAnimationPlaying}
           />

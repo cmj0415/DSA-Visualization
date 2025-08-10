@@ -95,6 +95,7 @@ function printNode(nodes: SegNode | undefined, idx: number) {
 export type HandleAnimation = {
   query: (l: number, r: number) => void;
   update: (idx: number, val: number) => void;
+  rangeUpdate: (l: number, r: number, val: number) => void;
 };
 
 const SegmentTree = forwardRef<HandleAnimation, Props>(
@@ -270,6 +271,10 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
         setHighlightedParent(0);
         setDisplayText(false);
         setPlaying(false);
+      },
+
+      rangeUpdate: async (l: number, r: number, val: number) => {
+        alert("Updating...");
       },
     }));
 
