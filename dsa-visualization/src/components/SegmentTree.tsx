@@ -1,4 +1,5 @@
 import { useLocation } from "react-router-dom";
+import ArrayDisplay from "./ArrayDisplay";
 import {
   useState,
   useEffect,
@@ -108,7 +109,7 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
 
     const { state } = useLocation();
     const initialArray = state?.initialArray || [0];
-    const arr = [0, ...initialArray];
+    const [arr, setArr] = useState([0, ...initialArray]);
     const seg = new Array(4 * arr.length);
 
     arrToSeg(arr, seg, 1, arr.length - 1, 1);
@@ -195,6 +196,9 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
           alert("Please enter a number between -100 and 100");
           return;
         }
+        const newarr = [...arr];
+        newarr[idx] = val;
+        setArr(newarr);
         setPlaying(true);
         setDisplayText(true);
         const visitNode = async (
@@ -289,7 +293,10 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
     }, []);
 
     return (
-      <div ref={containerRef} style={{ width: "80vw", height: "60vh" }}>
+      <div
+        ref={containerRef}
+        style={{ position: "relative", width: "80vw", height: "50%" }}
+      >
         <Tree
           data={treeData}
           orientation="vertical"
@@ -341,10 +348,21 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
           )}
         />
         {displayText && (
-          <div style={{ backgroundColor: "black" }}>
+          <div
+            style={{
+              position: "absolute",
+              width: "100%",
+              height: "30px",
+              backgroundColor: "black",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
             <p>{textBox}</p>
           </div>
         )}
+        <ArrayDisplay array={arr} />
       </div>
     );
   }

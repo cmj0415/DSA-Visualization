@@ -30,7 +30,14 @@ export default function SegTree() {
       <SegmentTree ref={segmentTreeRef} setPlaying={setIsAnimationPlaying} />
       <br></br>
       {mode === 0 && (
-        <div>
+        <div
+          style={{
+            marginTop: "50px",
+            position: "absolute",
+            right: 0,
+            width: "70%",
+          }}
+        >
           <Button
             text="Update"
             disabled={false}
@@ -44,7 +51,14 @@ export default function SegTree() {
         </div>
       )}
       {mode === 1 && (
-        <div>
+        <div
+          style={{
+            marginTop: "10px",
+            position: "absolute",
+            right: 0,
+            width: "70%",
+          }}
+        >
           <SegUpdate
             onTrigger={triggerUpdate}
             onBackClicked={setMode}
@@ -53,7 +67,14 @@ export default function SegTree() {
         </div>
       )}
       {mode === 2 && (
-        <div>
+        <div
+          style={{
+            marginTop: "10px",
+            position: "absolute",
+            right: 0,
+            width: "70%",
+          }}
+        >
           <SegQuery
             onTrigger={triggerQuery}
             onBackClicked={setMode}
