@@ -18,6 +18,7 @@ type SegNode = {
   id: number;
   rangeL: number;
   rangeR: number;
+  lazy: number;
   left?: SegNode;
   right?: SegNode;
 };
@@ -45,13 +46,25 @@ function segToNode(
   r: number,
   idx: number
 ): SegNode | undefined {
-  if (idx >= seg.length) return undefined;
+  if (l > r) return undefined;
+  if (l === r) {
+    return {
+      value: seg[idx],
+      id: idx,
+      rangeL: l,
+      rangeR: r,
+      lazy: 0,
+      left: undefined,
+      right: undefined,
+    };
+  }
   const mid = Math.floor((l + r) / 2);
   return {
     value: seg[idx],
     id: idx,
     rangeL: l,
     rangeR: r,
+    lazy: 0,
     left: segToNode(seg, l, mid, idx * 2),
     right: segToNode(seg, mid + 1, r, idx * 2 + 1),
   };
@@ -70,6 +83,7 @@ function nodeToTree(
     attributes: {
       left: l,
       right: r,
+      lazy: nodes.lazy,
       id: idx,
     },
     children: [
@@ -274,7 +288,83 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
       },
 
       rangeUpdate: async (l: number, r: number, val: number) => {
-        alert("Updating...");
+        setDisplayText(true);
+        printNode(segNodeRef.current, 1);
+        const pushDown = async (node: SegNode | undefined): Promise<void> => {
+          if (node === undefined || node.lazy === 0) return;
+          const mid = Math.floor((node.rangeL + node.rangeR) / 2);
+          if (node.left) {
+            node.left.lazy += node.lazy;
+            node.left.value += (mid - node.rangeL + 1) * node.lazy;
+          }
+          if (node.right) {
+            node.right.lazy += node.lazy;
+            node.right.value += (node.rangeR - mid) * node.lazy;
+          }
+          node.lazy = 0;
+        };
+        const visitNode = async (
+          node: SegNode | undefined,
+          parNode: SegNode | undefined
+        ): Promise<void> => {
+          if (node === undefined || parNode === undefined) return;
+
+          const index = Number(node.id);
+          const parIndex = Number(parNode.id);
+          if (index !== undefined && parIndex !== undefined) {
+            setHighlightedChild(index);
+            setHighlightedParent(parIndex);
+          }
+
+          const start = node.rangeL;
+          const end = node.rangeR;
+          if (l <= start && end <= r) {
+            node.value += (end - start + 1) * val;
+            node.lazy += val;
+            const newtree = nodeToTree(
+              segNodeRef.current,
+              1,
+              arr.length - 1,
+              1
+            );
+            if (newtree) setTreeData([newtree]);
+            await delay(delayTime);
+            return;
+          }
+          if (start !== end) {
+            setTextBox("Pushing down lazy tag...");
+            await delay(delayTime);
+            await pushDown(node);
+            const leftChild = node.left;
+            const rightChild = node.right;
+            let leftsum = 0;
+            let rightsum = 0;
+            if (leftChild) {
+              setTextBox("Updating left child...");
+              await delay(delayTime);
+              await visitNode(leftChild, node);
+              leftsum = leftChild.value;
+            }
+            setHighlightedChild(0);
+            if (rightChild) {
+              setTextBox("Updating right child...");
+              await delay(delayTime);
+              await visitNode(rightChild, node);
+              rightsum = rightChild.value;
+            }
+            setHighlightedChild(index);
+            setHighlightedParent(parIndex);
+            node.value = leftsum + rightsum;
+          }
+          const newtree = nodeToTree(segNodeRef.current, 1, arr.length - 1, 1);
+          await delay(delayTime);
+          if (newtree) setTreeData([newtree]);
+        };
+        await visitNode(segNodeRef.current, segNodeRef.current);
+        printNode(segNodeRef.current, 1);
+        setHighlightedChild(0);
+        setHighlightedParent(0);
+        setDisplayText(false);
       },
     }));
 
