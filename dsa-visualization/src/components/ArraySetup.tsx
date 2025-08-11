@@ -1,20 +1,14 @@
 import { useState } from "react";
 import Button from "./Button";
+import { isNumber } from "../utils/func.ts";
 type Props = {
   onSubmit: (arr: number[]) => void;
+  range: [number, number];
 };
-export default function ArraySetup({ onSubmit }: Props) {
+export default function ArraySetup({ onSubmit, range }: Props) {
   const [arrayLength, setArrayLength] = useState<number>(4);
   const [inputValues, setInputValues] = useState<string[]>(Array(4).fill(""));
 
-  const isNumber = (input: string): boolean => {
-    const len = input.length;
-    for (let i = 0; i < len; i++) {
-      if (i === 0 && input[i] === "-") continue;
-      if (input[i] < "0" || input[i] > "9") return false;
-    }
-    return true;
-  };
   const handleLengthChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const length = Number(event.target.value);
     setArrayLength(length);
@@ -46,9 +40,9 @@ export default function ArraySetup({ onSubmit }: Props) {
       <label>
         Select array length and then enter the values：
         <select value={arrayLength} onChange={handleLengthChange}>
-          {[...Array(5)].map((_, i) => (
-            <option key={i} value={i + 4}>
-              {i + 4}
+          {[...Array(range[1] - range[0] + 1)].map((_, i) => (
+            <option key={i} value={i + range[0]}>
+              {i + range[0]}
             </option>
           ))}
         </select>

@@ -9,6 +9,7 @@ export default function SetupPage() {
       onSubmit={(arr) => {
         navigate("/segtree", { state: { initialArray: arr } });
       }}
+      range={[4, 8]}
     />
   );
 }
