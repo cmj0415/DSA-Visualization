@@ -3,6 +3,7 @@ import Button from "../components/Button";
 import SegmentTree, { type HandleAnimation } from "../components/SegmentTree";
 import SegUpdate from "../components/SegUpdate";
 import SegQuery from "../components/SegQuery";
+import SegRangeUpdate from "../components/SegRangeUpdate";
 
 export default function SegTree() {
   const [mode, setMode] = useState(0);
@@ -22,6 +23,12 @@ export default function SegTree() {
     }
   };
 
+  const triggerRangeUpdate = (l: number, r: number, val: number) => {
+    if (segmentTreeRef.current) {
+      segmentTreeRef.current.rangeUpdate(l, r, val);
+    }
+  };
+
   return (
     <div style={{ width: "100%", height: "100vh" }}>
       <div style={{ padding: "20px" }}>
@@ -30,7 +37,14 @@ export default function SegTree() {
       <SegmentTree ref={segmentTreeRef} setPlaying={setIsAnimationPlaying} />
       <br></br>
       {mode === 0 && (
-        <div>
+        <div
+          style={{
+            marginTop: "50px",
+            position: "absolute",
+            right: 0,
+            width: "70%",
+          }}
+        >
           <Button
             text="Update"
             disabled={false}
@@ -41,10 +55,22 @@ export default function SegTree() {
             disabled={false}
             onClickCallback={() => setMode(2)}
           />
+          <Button
+            text="Range Update"
+            disabled={false}
+            onClickCallback={() => setMode(3)}
+          />
         </div>
       )}
       {mode === 1 && (
-        <div>
+        <div
+          style={{
+            marginTop: "10px",
+            position: "absolute",
+            right: 0,
+            width: "70%",
+          }}
+        >
           <SegUpdate
             onTrigger={triggerUpdate}
             onBackClicked={setMode}
@@ -53,9 +79,32 @@ export default function SegTree() {
         </div>
       )}
       {mode === 2 && (
-        <div>
+        <div
+          style={{
+            marginTop: "10px",
+            position: "absolute",
+            right: 0,
+            width: "70%",
+          }}
+        >
           <SegQuery
             onTrigger={triggerQuery}
+            onBackClicked={setMode}
+            isAnimationPlaying={isAnimationPlaying}
+          />
+        </div>
+      )}
+      {mode === 3 && (
+        <div
+          style={{
+            marginTop: "10px",
+            position: "absolute",
+            right: 0,
+            width: "70%",
+          }}
+        >
+          <SegRangeUpdate
+            onTrigger={triggerRangeUpdate}
             onBackClicked={setMode}
             isAnimationPlaying={isAnimationPlaying}
           />

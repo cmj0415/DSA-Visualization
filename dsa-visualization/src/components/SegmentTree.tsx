@@ -1,4 +1,5 @@
 import { useLocation } from "react-router-dom";
+import ArrayDisplay from "./ArrayDisplay";
 import {
   useState,
   useEffect,
@@ -17,6 +18,7 @@ type SegNode = {
   id: number;
   rangeL: number;
   rangeR: number;
+  lazy: number;
   left?: SegNode;
   right?: SegNode;
 };
@@ -44,13 +46,25 @@ function segToNode(
   r: number,
   idx: number
 ): SegNode | undefined {
-  if (idx >= seg.length) return undefined;
+  if (l > r) return undefined;
+  if (l === r) {
+    return {
+      value: seg[idx],
+      id: idx,
+      rangeL: l,
+      rangeR: r,
+      lazy: 0,
+      left: undefined,
+      right: undefined,
+    };
+  }
   const mid = Math.floor((l + r) / 2);
   return {
     value: seg[idx],
     id: idx,
     rangeL: l,
     rangeR: r,
+    lazy: 0,
     left: segToNode(seg, l, mid, idx * 2),
     right: segToNode(seg, mid + 1, r, idx * 2 + 1),
   };
@@ -69,6 +83,7 @@ function nodeToTree(
     attributes: {
       left: l,
       right: r,
+      lazy: nodes.lazy,
       id: idx,
     },
     children: [
@@ -94,6 +109,7 @@ function printNode(nodes: SegNode | undefined, idx: number) {
 export type HandleAnimation = {
   query: (l: number, r: number) => void;
   update: (idx: number, val: number) => void;
+  rangeUpdate: (l: number, r: number, val: number) => void;
 };
 
 const SegmentTree = forwardRef<HandleAnimation, Props>(
@@ -108,7 +124,7 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
 
     const { state } = useLocation();
     const initialArray = state?.initialArray || [0];
-    const arr = [0, ...initialArray];
+    const [arr, setArr] = useState([0, ...initialArray]);
     const seg = new Array(4 * arr.length);
 
     arrToSeg(arr, seg, 1, arr.length - 1, 1);
@@ -117,6 +133,22 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
     const [treeData, setTreeData] = useState([
       nodeToTree(segNodeRef.current, 1, arr.length - 1, 1)!,
     ]);
+
+    const pushDown = async (node: SegNode | undefined): Promise<void> => {
+      if (node === undefined || node.lazy === 0) return;
+      setTextBox("Pushing down lazy tag...");
+      const mid = Math.floor((node.rangeL + node.rangeR) / 2);
+      if (node.left) {
+        node.left.lazy += node.lazy;
+        node.left.value += (mid - node.rangeL + 1) * node.lazy;
+      }
+      if (node.right) {
+        node.right.lazy += node.lazy;
+        node.right.value += (node.rangeR - mid) * node.lazy;
+      }
+      node.lazy = 0;
+      await delay(delayTime);
+    };
 
     useImperativeHandle(ref, () => ({
       query: async (l: number, r: number) => {
@@ -145,6 +177,11 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
 
           const start = node.rangeL;
           const end = node.rangeR;
+          await pushDown(node);
+          const newtree = nodeToTree(segNodeRef.current, 1, arr.length - 1, 1);
+          if (newtree) setTreeData([newtree]);
+          await delay(delayTime);
+
           if (start > r || end < l) {
             setTextBox(`[${start}..${end}] out of range. Returns 0.`);
             await delay(delayTime);
@@ -195,6 +232,9 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
           alert("Please enter a number between -100 and 100");
           return;
         }
+        const newarr = [...arr];
+        newarr[idx] = val;
+        setArr(newarr);
         setPlaying(true);
         setDisplayText(true);
         const visitNode = async (
@@ -265,6 +305,106 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
         setHighlightedChild(0);
         setHighlightedParent(0);
         setDisplayText(false);
+        setTextBox("");
+        setPlaying(false);
+      },
+
+      rangeUpdate: async (l: number, r: number, val: number) => {
+        if (l < 1 || l >= arr.length || r < 1 || r >= arr.length) {
+          alert("Out of range!");
+          return;
+        } else if (l > r) {
+          alert("Starting index must be smaller than or equal to ending index");
+          return;
+        }
+        if (val < -10 || val > 10) {
+          alert("Increment must be between -10 and 10");
+          return;
+        }
+        const newarr = [...arr];
+        for (let i = l; i <= r; i++) newarr[i] += val;
+        setArr(newarr);
+        setPlaying(true);
+        setDisplayText(true);
+        printNode(segNodeRef.current, 1);
+
+        const visitNode = async (
+          node: SegNode | undefined,
+          parNode: SegNode | undefined
+        ): Promise<void> => {
+          if (node === undefined || parNode === undefined) return;
+
+          const index = Number(node.id);
+          const parIndex = Number(parNode.id);
+          if (index !== undefined && parIndex !== undefined) {
+            setHighlightedChild(index);
+            setHighlightedParent(parIndex);
+          }
+
+          const start = node.rangeL;
+          const end = node.rangeR;
+          if (start > r || end < l) {
+            setTextBox(`[${start}..${end}] out of range. Directly returns.`);
+            await delay(delayTime);
+            return;
+          }
+
+          if (l <= start && end <= r) {
+            setTextBox(
+              `[${start}..${end}] within range. Update the value and the lazy tag.`
+            );
+            node.value += (end - start + 1) * val;
+            node.lazy += val;
+            const newtree = nodeToTree(
+              segNodeRef.current,
+              1,
+              arr.length - 1,
+              1
+            );
+            if (newtree) setTreeData([newtree]);
+            await delay(delayTime);
+            return;
+          }
+
+          await pushDown(node);
+          let newtree = nodeToTree(segNodeRef.current, 1, arr.length - 1, 1);
+          if (newtree) setTreeData([newtree]);
+          await delay(delayTime);
+
+          const leftChild = node.left;
+          const rightChild = node.right;
+          let leftsum = 0;
+          let rightsum = 0;
+          if (leftChild) {
+            setTextBox("Updating left child...");
+            await delay(delayTime);
+            await visitNode(leftChild, node);
+            leftsum = leftChild.value;
+          }
+          setHighlightedChild(0);
+          if (rightChild) {
+            setTextBox("Updating right child...");
+            await delay(delayTime);
+            await visitNode(rightChild, node);
+            rightsum = rightChild.value;
+          }
+          setHighlightedChild(index);
+          setHighlightedParent(parIndex);
+          node.value = leftsum + rightsum;
+          setTextBox(
+            `Update the value to ${leftsum} + ${rightsum} = ${node.value}`
+          );
+
+          newtree = nodeToTree(segNodeRef.current, 1, arr.length - 1, 1);
+          if (newtree) setTreeData([newtree]);
+          await delay(delayTime);
+        };
+        await visitNode(segNodeRef.current, segNodeRef.current);
+        printNode(segNodeRef.current, 1);
+        setHighlightedChild(0);
+        setHighlightedParent(0);
+        setDisplayText(false);
+        setTextBox("");
         setPlaying(false);
       },
     }));
@@ -289,7 +429,10 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
     }, []);
 
     return (
-      <div ref={containerRef} style={{ width: "80vw", height: "60vh" }}>
+      <div
+        ref={containerRef}
+        style={{ position: "relative", width: "80vw", height: "50%" }}
+      >
         <Tree
           data={treeData}
           orientation="vertical"
@@ -304,6 +447,17 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
           separation={{ nonSiblings: 7, siblings: 4 }}
           renderCustomNodeElement={({ nodeDatum }) => (
             <g>
+              <rect width={30} height={15} fill="#d898e6ff" x={12} y={12} />
+              <text
+                x={27}
+                y={19.5}
+                textAnchor="middle"
+                alignmentBaseline="middle"
+                fontSize="8"
+                fill="black"
+              >
+                {nodeDatum.attributes?.lazy ?? "0"}
+              </text>
               <circle
                 r={20}
                 fill={
@@ -341,10 +495,21 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
           )}
         />
         {displayText && (
-          <div style={{ backgroundColor: "black" }}>
+          <div
+            style={{
+              position: "absolute",
+              width: "100%",
+              height: "30px",
+              backgroundColor: "black",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
             <p>{textBox}</p>
           </div>
         )}
+        <ArrayDisplay array={arr} />
       </div>
     );
   }
