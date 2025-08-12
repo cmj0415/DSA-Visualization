@@ -19,9 +19,19 @@ type SegNode = {
   rangeL: number;
   rangeR: number;
   lazy: number;
+  displacement?: Pair; // {sibilngSeparation, nonSiblingSeparation}
   left?: SegNode;
   right?: SegNode;
 };
+
+type Pair = {
+  x: number;
+  y: number;
+};
+
+function addPair(a: Pair, b: Pair): Pair {
+  return { x: a.x + b.x, y: a.y + b.y };
+}
 
 function arrToSeg(
   arr: number[],
@@ -54,6 +64,7 @@ function segToNode(
       rangeL: l,
       rangeR: r,
       lazy: 0,
+      displacement: { x: 0, y: 0 },
       left: undefined,
       right: undefined,
     };
@@ -65,6 +76,7 @@ function segToNode(
     rangeL: l,
     rangeR: r,
     lazy: 0,
+    displacement: undefined,
     left: segToNode(seg, l, mid, idx * 2),
     right: segToNode(seg, mid + 1, r, idx * 2 + 1),
   };
@@ -101,7 +113,9 @@ function printSeg(seg: number[]) {
 
 function printNode(nodes: SegNode | undefined, idx: number) {
   if (!nodes) return;
-  console.log(`Index ${idx}: ${nodes.value}`);
+  console.log(
+    `Index ${idx}: ${nodes.value}. Displacement: ${nodes.displacement?.x}, ${nodes.displacement?.y}`
+  );
   printNode(nodes.left, idx * 2);
   printNode(nodes.right, idx * 2 + 1);
 }
@@ -134,20 +148,33 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
       nodeToTree(segNodeRef.current, 1, arr.length - 1, 1)!,
     ]);
 
-    const depth = (node: SegNode): number => {
-      let d = 0;
-      let len = arr.length - 1;
-      const range = node.rangeR - node.rangeL + 1;
-      while (len > range) {
-        len = Math.floor(len / 2);
-        d++;
-      }
-      return d;
-    };
     const sz = 30; // node size
     const df = 80; // depth factor
     const sib = 4; // sibling separation factor
     const nsib = 7; // non-sibling separation factor
+
+    const calcDisplacement = (node: SegNode | undefined): Pair => {
+      if (!node) return { x: 0, y: 0 };
+      if (node.displacement) return node.displacement;
+      const diff = node.rangeR - node.rangeL;
+      if (diff === 1 || diff === 2)
+        return (node.displacement = { x: 0.5, y: 0 });
+      let totalDisp = { x: 0, y: 1 };
+      let travL = node.left;
+      let travR = node.right;
+      while (travL) {
+        totalDisp = addPair(totalDisp, calcDisplacement(travL));
+        travL = travL.right;
+      }
+      while (travR) {
+        totalDisp = addPair(totalDisp, calcDisplacement(travR));
+        travR = travR.left;
+      }
+      totalDisp.x /= 2;
+      totalDisp.y /= 2;
+      return (node.displacement = totalDisp);
+    };
+    calcDisplacement(nodes);
 
     const pushDown = async (node: SegNode | undefined): Promise<void> => {
       if (node === undefined || node.lazy === 0) return;
