@@ -134,6 +134,21 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
       nodeToTree(segNodeRef.current, 1, arr.length - 1, 1)!,
     ]);
 
+    const depth = (node: SegNode): number => {
+      let d = 0;
+      let len = arr.length - 1;
+      const range = node.rangeR - node.rangeL + 1;
+      while (len > range) {
+        len = Math.floor(len / 2);
+        d++;
+      }
+      return d;
+    };
+    const sz = 30; // node size
+    const df = 80; // depth factor
+    const sib = 4; // sibling separation factor
+    const nsib = 7; // non-sibling separation factor
+
     const pushDown = async (node: SegNode | undefined): Promise<void> => {
       if (node === undefined || node.lazy === 0) return;
       setTextBox("Pushing down lazy tag...");
@@ -437,20 +452,27 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
           data={treeData}
           orientation="vertical"
           draggable={false}
+          zoomable={false}
           translate={translate}
           pathFunc="straight"
           rootNodeClassName="node__root"
           branchNodeClassName="node__branch"
           leafNodeClassName="node__leaf"
-          nodeSize={{ x: 30, y: 30 }}
-          depthFactor={80}
-          separation={{ nonSiblings: 7, siblings: 4 }}
+          nodeSize={{ x: sz, y: sz }}
+          depthFactor={df}
+          separation={{ nonSiblings: nsib, siblings: sib }}
           renderCustomNodeElement={({ nodeDatum }) => (
             <g>
-              <rect width={30} height={15} fill="#d898e6ff" x={12} y={12} />
+              <rect
+                width={sz}
+                height={sz / 2}
+                fill="#d898e6ff"
+                x={0.6 * sz}
+                y={0.6 * sz}
+              />
               <text
-                x={27}
-                y={19.5}
+                x={1.1 * sz}
+                y={0.85 * sz}
                 textAnchor="middle"
                 alignmentBaseline="middle"
                 fontSize="8"
@@ -459,7 +481,7 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
                 {nodeDatum.attributes?.lazy ?? "0"}
               </text>
               <circle
-                r={20}
+                r={sz}
                 fill={
                   Number(nodeDatum.attributes?.id) === highlightedChild
                     ? "#eb9720ff"
@@ -472,14 +494,14 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
                 textAnchor="middle"
                 alignmentBaseline="middle"
                 fill="black"
-                fontSize="14"
+                fontSize={0.6 * sz}
                 fontWeight="normal"
               >
                 {nodeDatum.name}
               </text>
 
               <text
-                x={30}
+                x={1.2 * sz}
                 y={0}
                 textAnchor="start"
                 alignmentBaseline="middle"
