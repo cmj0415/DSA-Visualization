@@ -8,6 +8,7 @@ import {
   useImperativeHandle,
 } from "react";
 import { Tree, type RawNodeDatum } from "react-d3-tree";
+import NodeRenderer from "./NodeRenderer";
 
 type Props = {
   setPlaying: (isPlaying: boolean) => void;
@@ -19,6 +20,7 @@ type SegNode = {
   rangeL: number;
   rangeR: number;
   lazy: number;
+  processing: boolean;
   displacement?: Pair; // {sibilngSeparation, nonSiblingSeparation}
   left?: SegNode;
   right?: SegNode;
@@ -64,6 +66,7 @@ function segToNode(
       rangeL: l,
       rangeR: r,
       lazy: 0,
+      processing: false,
       displacement: { x: 0, y: 0 },
       left: undefined,
       right: undefined,
@@ -76,6 +79,7 @@ function segToNode(
     rangeL: l,
     rangeR: r,
     lazy: 0,
+    processing: false,
     displacement: undefined,
     left: segToNode(seg, l, mid, idx * 2),
     right: segToNode(seg, mid + 1, r, idx * 2 + 1),
@@ -96,6 +100,9 @@ function nodeToTree(
       left: l,
       right: r,
       lazy: nodes.lazy,
+      sibDisp: nodes.displacement ? nodes.displacement.x.toString() : "0",
+      nsibDisp: nodes.displacement ? nodes.displacement.y.toString() : "0",
+      processing: nodes.processing,
       id: idx,
     },
     children: [
@@ -132,6 +139,7 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
     const [highlightedParent, setHighlightedParent] = useState(0);
     const [textBox, setTextBox] = useState("");
     const [displayText, setDisplayText] = useState(false);
+    const [pushingDown, setPushingDown] = useState(false);
 
     const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
     const delayTime: number = 1000;
@@ -176,9 +184,20 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
     };
     calcDisplacement(nodes);
 
+    const reloadTree = () => {
+      const newtree = nodeToTree(segNodeRef.current, 1, arr.length - 1, 1);
+      if (newtree) setTreeData([newtree]);
+    };
+
     const pushDown = async (node: SegNode | undefined): Promise<void> => {
       if (node === undefined || node.lazy === 0) return;
       setTextBox("Pushing down lazy tag...");
+      node.processing = true;
+      reloadTree();
+
+      await new Promise(requestAnimationFrame);
+      await delay(delayTime);
+
       const mid = Math.floor((node.rangeL + node.rangeR) / 2);
       if (node.left) {
         node.left.lazy += node.lazy;
@@ -189,7 +208,8 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
         node.right.value += (node.rangeR - mid) * node.lazy;
       }
       node.lazy = 0;
-      await delay(delayTime);
+      node.processing = false;
+      reloadTree();
     };
 
     useImperativeHandle(ref, () => ({
@@ -220,8 +240,7 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
           const start = node.rangeL;
           const end = node.rangeR;
           await pushDown(node);
-          const newtree = nodeToTree(segNodeRef.current, 1, arr.length - 1, 1);
-          if (newtree) setTreeData([newtree]);
+          reloadTree();
           await delay(delayTime);
 
           if (start > r || end < l) {
@@ -304,13 +323,7 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
           if (start === end) {
             setTextBox(`Leaf reached. Update the value to ${val}.`);
             node.value = val;
-            const newtree = nodeToTree(
-              segNodeRef.current,
-              1,
-              arr.length - 1,
-              1
-            );
-            if (newtree) setTreeData([newtree]);
+            reloadTree();
             await delay(delayTime);
             return;
           }
@@ -339,8 +352,7 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
           setHighlightedChild(index);
           setHighlightedParent(parIndex);
           await delay(delayTime);
-          const newtree = nodeToTree(segNodeRef.current, 1, arr.length - 1, 1);
-          if (newtree) setTreeData([newtree]);
+          reloadTree();
         };
 
         await visitNode(segNodeRef.current, segNodeRef.current);
@@ -368,7 +380,6 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
         setArr(newarr);
         setPlaying(true);
         setDisplayText(true);
-        printNode(segNodeRef.current, 1);
 
         const visitNode = async (
           node: SegNode | undefined,
@@ -397,20 +408,12 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
             );
             node.value += (end - start + 1) * val;
             node.lazy += val;
-            const newtree = nodeToTree(
-              segNodeRef.current,
-              1,
-              arr.length - 1,
-              1
-            );
-            if (newtree) setTreeData([newtree]);
+            reloadTree();
             await delay(delayTime);
             return;
           }
 
           await pushDown(node);
-          let newtree = nodeToTree(segNodeRef.current, 1, arr.length - 1, 1);
-          if (newtree) setTreeData([newtree]);
           await delay(delayTime);
 
           const leftChild = node.left;
@@ -437,8 +440,7 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
             `Update the value to ${leftsum} + ${rightsum} = ${node.value}`
           );
 
-          newtree = nodeToTree(segNodeRef.current, 1, arr.length - 1, 1);
-          if (newtree) setTreeData([newtree]);
+          reloadTree();
           await delay(delayTime);
         };
         await visitNode(segNodeRef.current, segNodeRef.current);
@@ -489,58 +491,16 @@ const SegmentTree = forwardRef<HandleAnimation, Props>(
           depthFactor={df}
           separation={{ nonSiblings: nsib, siblings: sib }}
           renderCustomNodeElement={({ nodeDatum }) => (
-            <g>
-              <rect
-                width={sz}
-                height={sz / 2}
-                fill="#d898e6ff"
-                x={0.6 * sz}
-                y={0.6 * sz}
-              />
-              <text
-                x={1.1 * sz}
-                y={0.85 * sz}
-                textAnchor="middle"
-                alignmentBaseline="middle"
-                fontSize="8"
-                fill="black"
-              >
-                {nodeDatum.attributes?.lazy ?? "0"}
-              </text>
-              <circle
-                r={sz}
-                fill={
-                  Number(nodeDatum.attributes?.id) === highlightedChild
-                    ? "#eb9720ff"
-                    : Number(nodeDatum.attributes?.id) === highlightedParent
-                    ? "#f633b8ff"
-                    : "#00ffffff"
-                }
-              />
-              <text
-                textAnchor="middle"
-                alignmentBaseline="middle"
-                fill="black"
-                fontSize={0.6 * sz}
-                fontWeight="normal"
-              >
-                {nodeDatum.name}
-              </text>
-
-              <text
-                x={1.2 * sz}
-                y={0}
-                textAnchor="start"
-                alignmentBaseline="middle"
-                fill="white"
-                fontFamily="sans-serif"
-                fontSize="16"
-                fontWeight="bold"
-                strokeWidth="1"
-              >
-                {`[${nodeDatum.attributes?.left}..${nodeDatum.attributes?.right}]`}
-              </text>
-            </g>
+            <NodeRenderer
+              nodeDatum={nodeDatum}
+              highlightedChild={highlightedChild}
+              highlightedParent={highlightedParent}
+              sz={sz}
+              sib={sib}
+              nsib={nsib}
+              df={df}
+              delayTime={`${delayTime}ms`}
+            />
           )}
         />
         {displayText && (
